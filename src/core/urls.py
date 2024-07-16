@@ -1,3 +1,4 @@
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import (
     include,
@@ -7,6 +8,7 @@ from django.urls import (
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
+from core import settings
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -14,15 +16,15 @@ schema_view = get_schema_view(
         default_version='v1',
         description="Test description",
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="imanjibeki@gmail.com"),
+        contact=openapi.Contact(email="nurbolot@gmail.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
 )
 
 api = [
-    path('', include('src.apps.user.urls')),
-    path('', include('src.apps.books.urls')),
+    path('', include('apps.user.urls')),
+    path('', include('apps.books.urls')),
 ]
 
 urlpatterns = [
@@ -36,4 +38,5 @@ urlpatterns = [
                       schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc',  # noqa
                   ),
                   path('admin/', admin.site.urls),
-              ] #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)  # noqa
+              ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)  # noqa
+

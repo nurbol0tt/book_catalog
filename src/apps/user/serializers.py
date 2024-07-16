@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from src.apps.user.models import User
+from apps.user.models import User
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -15,3 +15,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
         instance.set_password(password)
         instance.save()
         return instance
+
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+
+    class Meta:
+        model = User
+        fields = ['token']
+
