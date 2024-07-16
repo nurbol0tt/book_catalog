@@ -20,7 +20,7 @@ generate-env() {
 start() {
   echo "Build and run the application"
   generate-env
-  docker-compose up --build
+  docker-compose up --build -d
 }
 
 stop() {
