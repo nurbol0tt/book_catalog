@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from src.apps.user.serializers import UserCreateSerializer
 from src.apps.user.tasks import send_message_email
 
-from src.apps.user.models import User
+from apps.user.models import User
 
 from src.apps.user.serializers import EmailVerificationSerializer, EmailConfirmSerializer
 from src.core import settings
