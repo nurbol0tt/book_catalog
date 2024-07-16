@@ -24,3 +24,7 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['token']
 
+
+class EmailConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+

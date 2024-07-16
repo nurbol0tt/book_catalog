@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from apps.user.views import (
     RegisterView,
     LoginView,
-    UserRegistrationWithConfirmationView,
+    UserConfirmationView,
     VerifyEmail,
 )
 
@@ -14,8 +14,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view()),
     path('login/', LoginView.as_view()),
     path('verify/', VerifyEmail.as_view(), name="verify"),
-    path('register-with-confirmation/',
-         UserRegistrationWithConfirmationView.as_view(),
-         name='user-registration-with-confirmation'
-         ),
+    path('corfirm-self/', UserConfirmationView.as_view()),
 ]

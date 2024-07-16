@@ -1,6 +1,5 @@
 import jwt
 from django.contrib.sites.shortcuts import get_current_site
-from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -15,7 +14,7 @@ from apps.user.tasks import send_message_email
 
 from apps.user.models import User
 
-from src.apps.user.serializers import EmailVerificationSerializer
+from src.apps.user.serializers import EmailVerificationSerializer, EmailConfirmSerializer
 from src.core import settings
 
 
@@ -30,21 +29,19 @@ class RegisterView(APIView):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
-class UserRegistrationWithConfirmationView(APIView):
-    serializer_class = UserCreateSerializer
+class UserConfirmationView(APIView):
+    serializer_class = EmailConfirmSerializer
 
-    @swagger_auto_schema(request_body=UserCreateSerializer)
-    def post(self, request, format=None) -> Response: # noqa
-        print(request.data)
-        serializer = UserCreateSerializer(data=request.data)
+    @swagger_auto_schema(request_body=EmailConfirmSerializer)
+    def post(self, request, format=None) -> Response:  # noqa
+        serializer = EmailConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        with transaction.atomic():
-            instance = serializer.save()
-            send_message_email.delay(
-                email=instance.email,
-                current_site=get_current_site(request).domain
-            )
+        email = serializer.validated_data['email']
+        current_site = get_current_site(request).domain
+
+        send_message_email.delay(email=email, current_site=current_site)
+
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
