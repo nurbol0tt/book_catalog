@@ -58,7 +58,7 @@ class RatingCreateView(APIView):
 class BookListView(ListAPIView):
     queryset = Book.objects.all().annotate(average_rating=Avg('rating__star'))
     serializer_class = BookListSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = BookFilter
 
