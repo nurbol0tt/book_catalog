@@ -10,7 +10,9 @@
 *.pyc
 __pycache__/
 local_settings.py
-db.sqlite3
+src/db.sqlite3
+src/staticfiles
+
 media
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
@@ -192,7 +194,7 @@ target/
 # pyenv
 .python-version
 
-# celery.py beat schedule file
+# celery beat schedule file
 celerybeat-schedule
 
 # SageMath parsed files
