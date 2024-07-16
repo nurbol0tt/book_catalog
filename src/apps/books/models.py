@@ -1,6 +1,6 @@
 from django.db import models
 
-from src.apps.user.models import User
+from apps.user.models import User
 
 
 class Genre(models.Model):
@@ -14,9 +14,8 @@ class Book(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     publication_date = models.DateField()
-    genre = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE
+    genres = models.ManyToManyField(
+        Genre
     )
     author = models.ForeignKey(
         User,
@@ -54,13 +53,11 @@ class Comment(models.Model):
         return f"{self.username} - {self.book}"
 
 
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+class Note(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f'{self.user.username} - {self.book.title}'
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    books = models.ManyToManyField(Book, related_name='notes')
 
 
 class Rating(models.Model):
