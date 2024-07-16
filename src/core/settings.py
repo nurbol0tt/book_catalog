@@ -1,24 +1,19 @@
 from datetime import timedelta
 from pathlib import Path
+import os
+from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!kf*nedj6c-3n&ao3!w2ocmwub+0we6zqu9s45j9i%k0g^#ci&'
+SECRET_KEY = config('SECRET_KEY', cast=str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=list)
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,15 +21,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'src.apps.books',
-    'src.apps.user',
+    'apps.books',
+    'apps.user',
 
+    'django_filters',
     "drf_yasg",
     "rest_framework",
     "rest_framework.authtoken",
-
     'rest_framework_simplejwt',
-
 ]
 
 MIDDLEWARE = [
@@ -49,7 +43,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'src.core.urls'
+ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
@@ -68,8 +62,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'src.core.wsgi.application'
-ASGI_APPLICATION = 'src.core.wsgi.application' # noqa
+WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application' # noqa
 
 
 # Database
@@ -117,17 +111,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-# STATIC_URL = config(
-#     'STATIC_URL',
-#     cast=str,
-#     default='static/'
-# )
-# STATIC_ROOT = config(
-#     'STATIC_ROOT',
-#     cast=str,
-#     default='application/static'
-# )
+STATIC_URL = '/static/'
+
+# Define the directory where Django will look for static files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# Define the directory where collectstatic will collect static files for deployment
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -142,11 +132,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    # 'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    # 'PAGE_SIZE': 5,
 }
-
 
 
 SIMPLE_JWT = {
@@ -190,8 +176,6 @@ SIMPLE_JWT = {
 }
 
 
-import os
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
@@ -202,3 +186,10 @@ EMAIL_HOST_PASSWORD = "lkmkydxfymddsnwl"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', cast=str)
+CELER_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', cast=str)
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
