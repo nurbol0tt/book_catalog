@@ -1,13 +1,20 @@
 version: '3'
 
-volumes:
-  {}
-
-networks:
-  sample-project:
-      driver: bridge
+#volumes:
+#  postgres-data: { }
 
 services:
+
+#  postgres-db:
+#    image: "postgres:14.1"
+#    container_name: postgres_db
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
+#    ports:
+#      - "5455:5432"
+#    env_file:
+#      - .config/.env
+
   app:
     container_name: app
     build:
@@ -15,21 +22,24 @@ services:
       dockerfile: Dockerfile
       args:
         - PYTHON_VERSION=3.10
+#    command: start.sh run
+    command: bash -c "python ./src/manage.py migrate --noinput &&
+      python ./src/manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./src:/app/src
-#    env_file:
-#      - .config/.env
+    env_file:
+      - .config/.env
     ports:
       - "8000:8000"
-    command: start.sh run
     depends_on:
       - worker
+#      - postgres-db  # Ensures postgres-db starts before app
 
   worker:
     build:
       context: ./
       dockerfile: Dockerfile
-    command: celery.py -A src worker --loglevel=info --beat
+    command: celery -A src worker --loglevel=info --beat
     depends_on:
       - redis
     links:
@@ -39,4 +49,4 @@ services:
     container_name: redis
     image: redis:latest
     ports:
-      - "6381:6379"
+      - "6380:6379"

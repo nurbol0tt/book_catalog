@@ -1,18 +1,39 @@
-# Stage 1: Build Stage
-FROM python:3.10 AS builder
+ARG PYTHON_VERSION=3.10
 
-# Set work directory
-WORKDIR /app
+FROM python:$PYTHON_VERSION as base
 
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV ROOT /app
+ENV PYTHONPATH "${PYTHONPATH}:/app/src/"
 
-# Copy requirements file and install dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install psycopg2-binary
+WORKDIR $ROOT
 
-# Copy project
-COPY . .
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends build-essential \
+  && apt-get install -y --no-install-recommends apt-utils \
+  && apt-get install -y --no-install-recommends libc-dev \
+  && apt-get install -y --no-install-recommends gcc \
+  && apt-get install -y --no-install-recommends gettext \
+  && apt-get install -y --no-install-recommends vim \
+  && apt-get update && apt-get install -y zsh \
+  && apt-get clean
+
+
+RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
+    cd /usr/local/bin && \
+    ln -s /opt/poetry/bin/poetry
+
+RUN poetry config virtualenvs.create false
+
+COPY pyproject.toml poetry.lock $ROOT/
+RUN poetry install --no-root --no-dev
+
+ADD .config/.env $ROOT/
+COPY src $ROOT/src
+
+RUN apt-get update && apt-get install -y zsh
+
+COPY start.sh $ROOT/start.sh
+RUN chmod +x $ROOT/start.sh
+ENV PATH="$ROOT:$PATH"
+
+CMD ["start.sh"]
