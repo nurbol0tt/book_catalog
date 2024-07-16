@@ -9,10 +9,10 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from apps.user.serializers import UserCreateSerializer
-from apps.user.tasks import send_message_email
+from src.apps.user.serializers import UserCreateSerializer
+from src.apps.user.tasks import send_message_email
 
-from apps.user.models import User
+from src.apps.user.models import User
 
 from src.apps.user.serializers import EmailVerificationSerializer, EmailConfirmSerializer
 from src.core import settings
@@ -37,10 +37,10 @@ class UserConfirmationView(APIView):
         serializer = EmailConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data['email']
+        user = get_object_or_404(User, email=serializer.validated_data['email'])
         current_site = get_current_site(request).domain
 
-        send_message_email.delay(email=email, current_site=current_site)
+        send_message_email.delay(email=user.email, current_site=current_site)
 
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.user.models import User
+from src.apps.user.models import User
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -27,4 +27,3 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 class EmailConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()
-
