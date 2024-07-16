@@ -23,7 +23,7 @@ schema_view = get_schema_view(
 )
 
 api = [
-    path('', include('apps.user.urls')),
+    path('auth/', include('apps.user.urls')),
     path('', include('apps.books.urls')),
 ]
 
