@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from src.apps.books.models import Book, Genre, Comment, Favorite, Rating
+from apps.books.models import Book, Genre, Comment, Note, Rating
 
 # Register your models here.
 admin.site.register(Genre)
 admin.site.register(Book)
 admin.site.register(Comment)
-admin.site.register(Favorite)
+admin.site.register(Note)
 admin.site.register(Rating)
