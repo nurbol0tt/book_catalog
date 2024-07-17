@@ -49,9 +49,6 @@ class Comment(models.Model):
         null=True,
     )
 
-    def __str__(self) -> str:
-        return f"{self.username} - {self.book}"
-
 
 class Note(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
