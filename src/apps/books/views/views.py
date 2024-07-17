@@ -2,6 +2,7 @@ from django.db.models import Avg, Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
+from injector import inject
 from rest_framework import permissions, status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -12,9 +13,12 @@ from apps.books.serializers import (
     CommentSerializer,
     RatingSerializer,
     BookListSerializer,
-    BookDetailSerializer, NoteSerializer,
+    BookDetailSerializer,
+    NoteSerializer,
 )
 
+from src.apps.books.interfaces.persistence.reader import IBookReader
+from src.apps.books.interfaces.persistence.repo import ICommentRepo, IRatingRepo
 from src.apps.books.serializers import BookFilter
 
 
@@ -24,16 +28,13 @@ class CommentCreateView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @inject
+    def __init__(self, service: ICommentRepo, *args, **kwargs):
+        self.service = service
+
     @swagger_auto_schema(request_body=CommentSerializer)
     def post(self, request, book_id: int) -> Response:
-        book = get_object_or_404(Book, id=book_id)
-        serializer = CommentSerializer(
-            data=request.data,
-            context={'request': request}
-        )
-        serializer.is_valid()
-        serializer.save(book=book)
-        return Response(status=201)
+        return self.service.create_comment(request, book_id)
 
 
 class RatingCreateView(APIView):
@@ -43,16 +44,13 @@ class RatingCreateView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
-    @swagger_auto_schema(request_body=RatingSerializer)
+    @inject
+    def __init__(self, service: IRatingRepo, *args, **kwargs):
+        self.service = service
+
+    @swagger_auto_schema(request_body=CommentSerializer)
     def post(self, request, book_id: int) -> Response:
-        book = get_object_or_404(Book, id=book_id)
-        serializer = RatingSerializer(
-            data=request.data,
-            context={'request': request}
-        )
-        serializer.is_valid()
-        serializer.save(book=book)
-        return Response(status=201)
+        return self.service.create_rating(request, book_id)
 
 
 class BookListView(ListAPIView):
@@ -76,17 +74,12 @@ class BookListView(ListAPIView):
 
 class BookDetailView(APIView):
 
-    def get(self, request, book_id) -> Response:
-        book = get_object_or_404(
-            Book.objects.annotate(
-                average_rating=Avg('rating__star')
-            )
-            .select_related('author')
-            .prefetch_related('genres', 'comment_set__author'),
-            id=book_id,
-        )
-        serializer = BookDetailSerializer(book)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    @inject
+    def __init__(self, service: IBookReader, *args, **kwargs):
+        self.service = service
+
+    def get(self, request, book_id: int) -> Response:
+        return self.service.book_detail(request, book_id)
 
 
 class NoteCreateView(APIView):

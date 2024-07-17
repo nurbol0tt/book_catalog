@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'apps.books',
     'apps.user',
 
+    'django_injector',
     'django_filters',
     "drf_yasg",
     "rest_framework",
@@ -193,3 +194,8 @@ CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', cast=str)
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+
+INJECTOR_MODULES = [
+    'apps.injector_module.MyModule',
+]

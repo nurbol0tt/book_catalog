@@ -67,4 +67,3 @@ class Rating(models.Model):
         User,
         on_delete=models.CASCADE,
     )
-
